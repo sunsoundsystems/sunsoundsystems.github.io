@@ -665,7 +665,7 @@
   <div class="eq-row" aria-hidden="true">
     <span></span><span></span><span></span><span></span><span></span><span></span><span></span>
   </div>
-  <h1>Turn any backyard into <span class="grad">the main stage.</span></h1>
+  <h1>Everything your event needs to <span class="grad">sound right.</span></h1>
   <p class="lead">Sun Sound System's rents pro-grade speakers, microphones, and mixers for birthdays, weddings, school events, and backyard parties — delivered, set up, and ready to play.</p>
   <div class="hero-ctas">
     <a class="btn-primary" href="#contact">Check availability</a>
@@ -873,7 +873,10 @@
         <div class="detail">PHONE — (503) 383-1756</div>
         <div class="detail">SERVICE AREA — Portland, OR &amp; surrounding neighborhoods</div>
       </div>
-      <form action="mailto:sunsoundsystems@gmail.com" method="post" enctype="text/plain">
+      <form id="contact-form" action="https://api.web3forms.com/submit" method="POST">
+        <input type="hidden" name="access_key" value="630b73cc-3d71-47c5-a100-eb733100e3a6">
+        <input type="hidden" name="subject" value="New booking request — Sun Sound System's">
+        <input type="checkbox" name="botcheck" style="display:none" tabindex="-1" autocomplete="off">
         <div>
           <label for="name">Your name</label>
           <input type="text" id="name" name="name" required>
@@ -884,9 +887,10 @@
         </div>
         <div>
           <label for="message">Event details</label>
-          <textarea id="message" name="message" placeholder="Type of event, guest count, location..."></textarea>
+          <textarea id="message" name="message" placeholder="Type of event, guest count, location..." required></textarea>
         </div>
         <button type="submit" class="submit-btn">Send request</button>
+        <p id="form-status" role="status" aria-live="polite" style="font-family:'Space Mono', monospace; font-size:0.85rem; margin-top:4px;"></p>
       </form>
     </div>
   </div>
@@ -922,6 +926,41 @@
       }),
     });
   });
+  const contactForm = document.getElementById('contact-form');
+  if (contactForm) {
+    const status = document.getElementById('form-status');
+    contactForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const submitBtn = contactForm.querySelector('.submit-btn');
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Sending...';
+      status.textContent = '';
+      status.style.color = '';
+
+      try {
+        const res = await fetch(contactForm.action, {
+          method: 'POST',
+          headers: { 'Accept': 'application/json' },
+          body: new FormData(contactForm),
+        });
+        const result = await res.json();
+        if (result.success) {
+          status.textContent = "Thanks — your request is in. We'll get back to you within a day.";
+          status.style.color = 'var(--gold)';
+          contactForm.reset();
+        } else {
+          status.textContent = "Something went wrong. Please try again, or email us directly.";
+          status.style.color = 'var(--coral)';
+        }
+      } catch (err) {
+        status.textContent = "Couldn't send — check your connection and try again.";
+        status.style.color = 'var(--coral)';
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Send request';
+      }
+    });
+  }
 </script>
 </body>
 </html>
